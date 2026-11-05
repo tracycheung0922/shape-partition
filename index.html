@@ -307,7 +307,6 @@
 
       let candidates = [];
 
-      // 如果在自訂繪圖模式，將已點擊的頂點納入磁吸目標
       if (state.mode === 'draw' && state.customDrawPoints.length > 0) {
         state.customDrawPoints.forEach((pt, idx) => {
           candidates.push({
@@ -421,45 +420,67 @@
 
     function cleanVertices(verts) {
       if (!verts || verts.length < 3) return verts;
-      let cleaned = [];
-      const EPS_DIST = 0.2;
 
+      let pts = [];
+      const EPS_DIST = 0.2;
       for (let i = 0; i < verts.length; i++) {
         const pt = verts[i];
-        if (cleaned.length === 0) {
-          cleaned.push({ x: pt.x, y: pt.y });
+        if (pts.length === 0) {
+          pts.push({ x: pt.x, y: pt.y });
         } else {
-          const prev = cleaned[cleaned.length - 1];
+          const prev = pts[pts.length - 1];
           if (Math.hypot(pt.x - prev.x, pt.y - prev.y) > EPS_DIST) {
-            cleaned.push({ x: pt.x, y: pt.y });
+            pts.push({ x: pt.x, y: pt.y });
           }
         }
       }
-      if (cleaned.length > 1 && Math.hypot(cleaned[0].x - cleaned[cleaned.length - 1].x, cleaned[0].y - cleaned[cleaned.length - 1].y) <= EPS_DIST) {
-        cleaned.pop();
+      if (pts.length > 1 && Math.hypot(pts[0].x - pts[pts.length - 1].x, pts[0].y - pts[pts.length - 1].y) <= EPS_DIST) {
+        pts.pop();
       }
 
-      if (cleaned.length < 3) return cleaned;
+      if (pts.length < 3) return pts;
 
-      let res = [];
-      const n = cleaned.length;
-      const EPS_H = 0.15;
+      let changed = true;
+      while (changed && pts.length >= 3) {
+        changed = false;
+        let newPts = [];
+        const n = pts.length;
 
-      for (let i = 0; i < n; i++) {
-        const prev = cleaned[(i - 1 + n) % n];
-        const curr = cleaned[i];
-        const next = cleaned[(i + 1) % n];
+        for (let i = 0; i < n; i++) {
+          const prev = pts[(i - 1 + n) % n];
+          const curr = pts[i];
+          const next = pts[(i + 1) % n];
 
-        const area = Math.abs(prev.x * (curr.y - next.y) + curr.x * (next.y - prev.y) + next.x * (prev.y - curr.y));
-        const base = Math.hypot(next.x - prev.x, next.y - prev.y);
-        const h = base > 1e-5 ? area / base : 0;
+          const v1 = { x: prev.x - curr.x, y: prev.y - curr.y };
+          const v2 = { x: next.x - curr.x, y: next.y - curr.y };
 
-        const dot = (curr.x - prev.x) * (next.x - curr.x) + (curr.y - prev.y) * (next.y - curr.y);
+          const mag1 = Math.hypot(v1.x, v1.y);
+          const mag2 = Math.hypot(v2.x, v2.y);
 
-        if (h < EPS_H && dot >= -EPS_DIST) continue;
-        res.push(curr);
+          if (mag1 < EPS_DIST || mag2 < EPS_DIST) {
+            changed = true;
+            continue;
+          }
+
+          const cross = v1.x * v2.y - v1.y * v2.x;
+          const dot = v1.x * v2.x + v1.y * v2.y;
+
+          if (Math.abs(cross) < 0.05 && dot > 0) {
+            changed = true;
+            continue;
+          }
+
+          if (Math.abs(cross) < 0.05 && dot < 0) {
+            changed = true;
+            continue;
+          }
+
+          newPts.push(curr);
+        }
+        pts = newPts;
       }
-      return res;
+
+      return pts;
     }
 
     function detectShapeName(verts) {
@@ -631,6 +652,7 @@
 
       const subPolygons = computeSubPolygons();
 
+      // 計算全場圖形總質心 (Scene Centroid)
       let sceneCentroid = { x: 8, y: 6 };
       if (subPolygons.length > 0) {
         let totalX = 0, totalY = 0, totalPts = 0;
@@ -640,7 +662,7 @@
         sceneCentroid = { x: totalX / totalPts, y: totalY / totalPts };
       }
 
-      // 1. 繪製現有切開的圖形
+      // 1. 繪製切割後的圖形 (採用均勻拓撲縮放，防重疊)
       subPolygons.forEach((poly, idx) => {
         const pCentroid = calcPolygonCentroid(poly.vertices);
 
@@ -648,10 +670,10 @@
         if (state.separation > 0 && subPolygons.length > 1) {
           const dirX = pCentroid.x - sceneCentroid.x;
           const dirY = pCentroid.y - sceneCentroid.y;
-          const dist = Math.hypot(dirX, dirY) || 1;
-          const factor = (state.separation / 100) * 1.6;
-          shiftX = (dirX / dist) * factor;
-          shiftY = (dirY / dist) * factor;
+          // 齊次比例推開 (Homothety Expansion)：按相對距離推開，100% 不重疊
+          const scaleFactor = (state.separation / 100) * 0.65;
+          shiftX = dirX * scaleFactor;
+          shiftY = dirY * scaleFactor;
         }
 
         ctx.save();
@@ -691,7 +713,7 @@
         ctx.restore();
       });
 
-      // 2. 繪製自訂底圖模式下的實時點擊線條與頂點
+      // 2. 自訂底圖繪製實時線條
       if (state.mode === 'draw' && state.customDrawPoints.length > 0) {
         ctx.save();
         ctx.beginPath();
@@ -701,7 +723,6 @@
           else ctx.lineTo(px.x, px.y);
         });
 
-        // 延伸至當前游標的預覽虛線
         if (state.hoverSnapInfo) {
           const mPx = gridToPixel(state.hoverSnapInfo.x, state.hoverSnapInfo.y);
           ctx.lineTo(mPx.x, mPx.y);
@@ -712,7 +733,6 @@
         ctx.setLineDash([5, 5]);
         ctx.stroke();
 
-        // 繪製頂點圓圈
         state.customDrawPoints.forEach((pt, idx) => {
           const px = gridToPixel(pt.x, pt.y);
           ctx.beginPath();
@@ -726,7 +746,7 @@
         ctx.restore();
       }
 
-      // 3. 繪製切割線
+      // 3. 切割線
       if (state.partitionLines.length > 0 && state.separation === 0) {
         ctx.save();
         ctx.strokeStyle = '#8e63b8';
@@ -743,7 +763,7 @@
         ctx.restore();
       }
 
-      // 4. 繪製切割預覽線
+      // 4. 切割預覽線
       if (state.selectedStartPoint && state.hoverSnapInfo && state.mode === 'cut') {
         ctx.save();
         const p1 = gridToPixel(state.selectedStartPoint.x, state.selectedStartPoint.y);
@@ -766,7 +786,7 @@
         ctx.restore();
       }
 
-      // 5. 繪製智能磁吸游標提示
+      // 5. 磁吸游標提示
       if (state.hoverSnapInfo) {
         const snap = state.hoverSnapInfo;
         const px = gridToPixel(snap.x, snap.y);
@@ -895,7 +915,6 @@
         if (state.customDrawPoints.length >= 3) {
           const firstPt = state.customDrawPoints[0];
           if (Math.hypot(firstPt.x - snap.x, firstPt.y - snap.y) < 0.3) {
-            // 點擊第一個頂點閉合底圖
             state.basePolygon = [...state.customDrawPoints];
             state.customDrawPoints = [];
             setMode('cut');
