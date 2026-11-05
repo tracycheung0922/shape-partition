@@ -202,11 +202,6 @@
     </section>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="mt-auto py-3 bg-white border-t border-brand-200 text-center text-xs text-slate-500 px-4">
-    <p>圖形分割 (Shape Partitioning) 數學教學互動網頁應用程式 | 淡紫色 (Pastel Purple) 主題介面</p>
-  </footer>
-
   <!-- HELP MODAL -->
   <div id="help-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl max-w-md w-full p-5 border-2 border-brand-300 shadow-2xl relative">
@@ -291,7 +286,6 @@
       canvas.height = canvasHeight * dpr;
       ctx.scale(dpr, dpr);
 
-      // Lock to 1:1 Orthographic Grid
       const step = Math.min(canvasWidth / (GRID_COLS + 2), canvasHeight / (GRID_ROWS + 2));
       gridStepX = step;
       gridStepY = step;
@@ -309,16 +303,11 @@
       };
     }
 
-    /* ==========================================================================
-       SMART MAGNET SNAPPING SYSTEM (頂點、中點與網格雙重磁吸)
-       ========================================================================== */
     function getSmartSnapPoint(px, py) {
       const rawGridX = (px - offsetX) / gridStepX;
       const rawGridY = (py - offsetY) / gridStepY;
 
-      // 1. Gather Candidate Snap Targets (Vertices & Midpoints)
       let candidates = [];
-      
       const activePolys = computeSubPolygons();
       activePolys.forEach(sp => {
         const verts = sp.vertices;
@@ -337,7 +326,6 @@
         }
       });
 
-      // 2. Check candidate proximity (Threshold: 0.4 grid units)
       let bestDist = 0.45;
       let bestSnap = null;
 
@@ -351,7 +339,6 @@
 
       if (bestSnap) return bestSnap;
 
-      // 3. Fallback to Nearest Integer Grid Intersection
       const nearestGx = Math.max(0, Math.min(GRID_COLS, Math.round(rawGridX)));
       const nearestGy = Math.max(0, Math.min(GRID_ROWS, Math.round(rawGridY)));
 
@@ -363,9 +350,6 @@
       };
     }
 
-    /* ==========================================================================
-       PRESET SHAPES (All Aligned to Integer Grid)
-       ========================================================================== */
     function loadPreset(type) {
       state.mode = 'cut';
       updateModeButtons();
@@ -410,9 +394,6 @@
       render();
     }
 
-    /* ==========================================================================
-       ROBUST VERTEX CLEANUP & GEOMETRY CLASSIFICATION
-       ========================================================================== */
     function calcPolygonArea(verts) {
       let area = 0;
       const n = verts.length;
@@ -433,7 +414,7 @@
     function cleanVertices(verts) {
       if (!verts || verts.length < 3) return verts;
       let cleaned = [];
-      const EPS_DIST = 0.2; // Merge vertices closer than 0.2 grid units
+      const EPS_DIST = 0.2;
 
       for (let i = 0; i < verts.length; i++) {
         const pt = verts[i];
@@ -452,10 +433,9 @@
 
       if (cleaned.length < 3) return cleaned;
 
-      // Remove collinear vertices
       let res = [];
       const n = cleaned.length;
-      const EPS_H = 0.15; // Point-to-segment height tolerance
+      const EPS_H = 0.15;
 
       for (let i = 0; i < n; i++) {
         const prev = cleaned[(i - 1 + n) % n];
@@ -468,7 +448,7 @@
 
         const dot = (curr.x - prev.x) * (next.x - curr.x) + (curr.y - prev.y) * (next.y - curr.y);
 
-        if (h < EPS_H && dot >= -EPS_DIST) continue; // Skip collinear point
+        if (h < EPS_H && dot >= -EPS_DIST) continue;
         res.push(curr);
       }
       return res;
@@ -505,7 +485,6 @@
         angles.push(Math.acos(cosTheta) * (180 / Math.PI));
       }
 
-      // TRIANGLE
       if (n === 3) {
         const hasRight = angles.some(a => Math.abs(a - 90) < 3);
         if (hasRight) return '直角三角形';
@@ -514,7 +493,6 @@
         return '三角形';
       }
 
-      // QUADRILATERAL
       if (n === 4) {
         const rightAngles = angles.filter(a => Math.abs(a - 90) < 3).length;
         const allSidesEqual = Math.abs(sides[0] - sides[1]) < 0.2 && Math.abs(sides[1] - sides[2]) < 0.2 && Math.abs(sides[2] - sides[3]) < 0.2;
@@ -546,9 +524,6 @@
       return `${n}邊形`;
     }
 
-    /* ==========================================================================
-       PRECISION SLICING ENGINE (WITH SNAP INTERSECTION CORRECTION)
-       ========================================================================== */
     function computeSubPolygons() {
       if (state.basePolygon.length < 3) return [];
       if (state.partitionLines.length === 0) {
@@ -573,13 +548,11 @@
     }
 
     function snapIntersection(ix, iy, verts, threshold = 0.25) {
-      // Check polygon vertices
       for (let v of verts) {
         if (Math.hypot(ix - v.x, iy - v.y) < threshold) {
           return { x: v.x, y: v.y };
         }
       }
-      // Check nearest integer grid point
       const rx = Math.round(ix);
       const ry = Math.round(iy);
       if (Math.hypot(ix - rx, iy - ry) < threshold) {
@@ -621,7 +594,6 @@
           let ix = curr.x + t * (next.x - curr.x);
           let iy = curr.y + t * (next.y - curr.y);
           
-          // Apply Precision Snap to Intersection
           const snapped = snapIntersection(ix, iy, verts);
           ring.push(snapped);
         }
@@ -644,9 +616,6 @@
       return res.length > 0 ? res : [verts];
     }
 
-    /* ==========================================================================
-       RENDER LOOP & VISUAL MAGNET INDICATORS
-       ========================================================================== */
     function render() {
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -663,7 +632,6 @@
         sceneCentroid = { x: totalX / totalPts, y: totalY / totalPts };
       }
 
-      // Render Sub-Polygons
       subPolygons.forEach((poly, idx) => {
         const pCentroid = calcPolygonCentroid(poly.vertices);
 
@@ -693,7 +661,6 @@
         ctx.lineWidth = 2.5;
         ctx.stroke();
 
-        // Label
         const centPx = gridToPixel(pCentroid.x + shiftX, pCentroid.y + shiftY);
         ctx.font = 'bold 12px "Noto Sans TC", sans-serif';
         const labelText = poly.name;
@@ -715,7 +682,6 @@
         ctx.restore();
       });
 
-      // Render Cut Lines
       if (state.partitionLines.length > 0 && state.separation === 0) {
         ctx.save();
         ctx.strokeStyle = '#8e63b8';
@@ -732,7 +698,6 @@
         ctx.restore();
       }
 
-      // Cut Line Preview
       if (state.selectedStartPoint && state.hoverSnapInfo && state.mode === 'cut') {
         ctx.save();
         const p1 = gridToPixel(state.selectedStartPoint.x, state.selectedStartPoint.y);
@@ -755,7 +720,6 @@
         ctx.restore();
       }
 
-      // SMART MAGNET HOVER INDICATOR
       if (state.hoverSnapInfo) {
         const snap = state.hoverSnapInfo;
         const px = gridToPixel(snap.x, snap.y);
@@ -765,13 +729,13 @@
         ctx.arc(px.x, px.y, 8, 0, Math.PI * 2);
 
         if (snap.type === 'vertex') {
-          ctx.fillStyle = 'rgba(34, 197, 94, 0.4)'; // Green for Vertex
+          ctx.fillStyle = 'rgba(34, 197, 94, 0.4)';
           ctx.strokeStyle = '#16a34a';
         } else if (snap.type === 'midpoint') {
-          ctx.fillStyle = 'rgba(6, 182, 212, 0.4)'; // Cyan for Midpoint
+          ctx.fillStyle = 'rgba(6, 182, 212, 0.4)';
           ctx.strokeStyle = '#0891b2';
         } else {
-          ctx.fillStyle = 'rgba(142, 99, 184, 0.3)'; // Purple for Grid
+          ctx.fillStyle = 'rgba(142, 99, 184, 0.3)';
           ctx.strokeStyle = '#8e63b8';
         }
 
@@ -779,7 +743,6 @@
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Snap Label Tag
         ctx.font = 'bold 10px "Noto Sans TC", sans-serif';
         const tagText = snap.label;
         const tagW = ctx.measureText(tagText).width;
@@ -840,9 +803,6 @@
       ctx.restore();
     }
 
-    /* ==========================================================================
-       TOUCH & MOUSE EVENTS WITH SMART MAGNET SNAPPING
-       ========================================================================== */
     function setupInteractionEvents() {
       canvas.addEventListener('mousedown', handlePointerDown);
       canvas.addEventListener('mousemove', handlePointerMove);
@@ -909,9 +869,6 @@
       render();
     }
 
-    /* ==========================================================================
-       UI CONTROLS & UTILITIES
-       ========================================================================== */
     function setMode(mode) {
       state.mode = mode;
       state.selectedStartPoint = null;
