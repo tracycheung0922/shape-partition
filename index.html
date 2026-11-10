@@ -633,7 +633,7 @@
       return { x: ix, y: iy };
     }
 
-    /* 核心修正：非自動延伸的有限線段切割 (Finite Segment Cutting) */
+    /* 核心修復：嚴格有限線段貫穿判定 (Strict Finite Segment Cut) */
     function sliceSinglePolygon(verts, lineP1, lineP2) {
       const A = lineP2.y - lineP1.y;
       const B = lineP1.x - lineP2.x;
@@ -643,7 +643,7 @@
       if (lenSq < 1e-9) return [verts];
 
       const dist = (p) => A * p.x + B * p.y + C;
-      const EPS = 1e-5;
+      const EPS = 1e-4;
 
       const dists = verts.map(p => dist(p));
 
@@ -653,38 +653,50 @@
         if (d < -EPS) hasNeg = true;
       }
 
+      // 如果圖形頂點全在直線同側，說明未接觸或未切割
       if (!hasPos || !hasNeg) return [verts];
 
-      // 計算劃線段參數 t (lineP1 時 t=0, lineP2 時 t=1)
       const dx = lineP2.x - lineP1.x;
       const dy = lineP2.y - lineP1.y;
       const getT = (p) => ((p.x - lineP1.x) * dx + (p.y - lineP1.y) * dy) / lenSq;
 
-      let tMin = Infinity, tMax = -Infinity;
       const n = verts.length;
+      const TOL = 0.05; // 允許端點 5% 磁吸微小誤差
 
+      // 檢查該圖形所有的切割邊交點與頂點，其參數 t 是否完全落在劃線段 [ -TOL, 1 + TOL ] 內部
       for (let i = 0; i < n; i++) {
         const curr = verts[i];
         const next = verts[(i + 1) % n];
         const dCurr = dists[i];
         const dNext = dists[(i + 1) % n];
 
+        // 1. 邊跨越 (Edge Crossing)
         if ((dCurr > EPS && dNext < -EPS) || (dCurr < -EPS && dNext > EPS)) {
           const tLine = dCurr / (dCurr - dNext);
           const ix = curr.x + tLine * (next.x - curr.x);
           const iy = curr.y + tLine * (next.y - curr.y);
           const tSeg = getT({ x: ix, y: iy });
-          if (tSeg < tMin) tMin = tSeg;
-          if (tSeg > tMax) tMax = tSeg;
+
+          // 若有任何邊界交點落在劃線段範圍外 (t < -TOL 或 t > 1 + TOL)，表示劃線段未完整穿過該圖形！
+          if (tSeg < -TOL || tSeg > 1 + TOL) {
+            return [verts];
+          }
+        }
+
+        // 2. 頂點接觸 (Vertex Crossing)
+        if (Math.abs(dCurr) <= EPS) {
+          const prev = verts[(i - 1 + n) % n];
+          const dPrev = dists[(i - 1 + n) % n];
+          if ((dPrev > EPS && dNext < -EPS) || (dPrev < -EPS && dNext > EPS)) {
+            const tSeg = getT(curr);
+            if (tSeg < -TOL || tSeg > 1 + TOL) {
+              return [verts];
+            }
+          }
         }
       }
 
-      // 若劃線段 [0, 1] 未觸及此圖形的切割交點區間 [tMin, tMax]，則不對該圖形進行切割
-      const TOL = 0.08; // 容許端點磁吸邊界誤差
-      if (tMin > 1 + TOL || tMax < 0 - TOL) {
-        return [verts];
-      }
-
+      // 到這裡表示劃線段實體完全貫穿了該多邊形，執行切割
       const ring = [];
       for (let i = 0; i < n; i++) {
         const curr = verts[i];
