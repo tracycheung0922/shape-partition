@@ -101,19 +101,15 @@
         </div>
       </div>
 
-      <!-- PRESET SHAPES CARD -->
+      <!-- PRESET SHAPES CARD (復原完全未變更) -->
       <div id="presets-card" class="bg-white rounded-2xl p-3 sm:p-4 border border-brand-200 shadow-sm">
         <h2 class="text-xs font-bold text-brand-800 uppercase tracking-wider mb-2 flex items-center justify-between">
           <span class="flex items-center gap-1.5"><i class="fa-solid fa-shapes text-brand-600"></i> 2. 課本常見預設圖形</span>
         </h2>
         <div class="grid grid-cols-2 gap-1.5 sm:gap-2">
-          <button onclick="loadPreset('three_rectangles')" class="p-2 rounded-xl border-2 border-brand-400 bg-brand-50 hover:bg-brand-100 transition flex items-center gap-2 col-span-2 shadow-xs">
-            <div class="w-6 h-6 rounded-md bg-teal-200 text-teal-800 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-layer-group"></i></div>
-            <span class="text-xs font-black text-brand-900">三個長方形 (課本題型)</span>
-          </button>
           <button onclick="loadPreset('rectangle')" class="p-2 rounded-xl border border-brand-200 hover:bg-brand-50 transition flex items-center gap-2 bg-white">
             <div class="w-6 h-6 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold"><i class="fa-regular fa-rectangle-wide"></i></div>
-            <span class="text-xs font-bold text-slate-700">單一長方形</span>
+            <span class="text-xs font-bold text-slate-700">長方形</span>
           </button>
           <button onclick="loadPreset('square')" class="p-2 rounded-xl border border-brand-200 hover:bg-brand-50 transition flex items-center gap-2 bg-white">
             <div class="w-6 h-6 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold"><i class="fa-regular fa-square"></i></div>
@@ -134,6 +130,14 @@
           <button onclick="loadPreset('triangle')" class="p-2 rounded-xl border border-brand-200 hover:bg-brand-50 transition flex items-center gap-2 bg-white">
             <div class="w-6 h-6 rounded-md bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-play -rotate-90"></i></div>
             <span class="text-xs font-bold text-slate-700">三角形</span>
+          </button>
+          <button onclick="loadPreset('hexagon')" class="p-2 rounded-xl border border-brand-200 hover:bg-brand-50 transition flex items-center gap-2 bg-white">
+            <div class="w-6 h-6 rounded-md bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-cube"></i></div>
+            <span class="text-xs font-bold text-slate-700">正六邊形</span>
+          </button>
+          <button onclick="loadPreset('lshape')" class="p-2 rounded-xl border border-brand-200 hover:bg-brand-50 transition flex items-center gap-2 bg-white">
+            <div class="w-6 h-6 rounded-md bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-L"></i></div>
+            <span class="text-xs font-bold text-slate-700">L形多邊形</span>
           </button>
         </div>
       </div>
@@ -167,9 +171,9 @@
       <div id="status-banner" class="bg-brand-100 border border-brand-300 text-brand-900 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center justify-between shadow-xs">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-brand-600 animate-pulse"></span>
-          <span id="status-text">提示：請在網格上點擊或觸控兩點劃出分割線 (劃線僅會分割該線段穿越的圖形)</span>
+          <span id="status-text">提示：請在網格上點擊或觸控兩點劃出分割線 (支援磁吸頂點與中點)</span>
         </div>
-        <span id="shape-count-badge" class="px-2.5 py-0.5 bg-white text-brand-800 text-[11px] font-black rounded-md border border-brand-200">3 個圖形</span>
+        <span id="shape-count-badge" class="px-2.5 py-0.5 bg-white text-brand-800 text-[11px] font-black rounded-md border border-brand-200">1 個圖形</span>
       </div>
 
       <!-- CANVAS CARD -->
@@ -191,7 +195,7 @@
           <h2 class="text-xs font-bold text-brand-800 uppercase tracking-wider flex items-center gap-1.5">
             <i class="fa-solid fa-chart-pie text-brand-600"></i> 分割結果智能分析
           </h2>
-          <span id="piece-total-count" class="text-[11px] font-bold text-slate-500">共 3 個圖形</span>
+          <span id="piece-total-count" class="text-[11px] font-bold text-slate-500">共 1 個圖形</span>
         </div>
         <div id="analysis-output" class="bg-brand-50/80 p-3 rounded-xl border border-brand-100 text-xs text-slate-700"></div>
       </div>
@@ -212,12 +216,12 @@
       </div>
       <div class="text-xs text-slate-600 space-y-2.5 leading-relaxed">
         <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-200">
-          <strong class="text-brand-900 font-bold">1. ✂️ 有限線段精準分割</strong>
-          <p>滑鼠或手指劃出分割線時，系統只會分割線段實際穿過的長方形，不會影響旁邊獨立的圖形！</p>
+          <strong class="text-brand-900 font-bold">1. ✂️ 畫線分割與智能磁吸</strong>
+          <p>滑鼠或手指靠近網格點、圖形頂點或邊長中點時會自動磁吸高亮！點擊兩點即可畫出 100% 精準分割線。</p>
         </div>
         <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-200">
-          <strong class="text-brand-900 font-bold">2. 📐 劃出梯形的技巧</strong>
-          <p>在一個長方形的頂邊與底邊各選一點（保持斜向連線），即可將該長方形分割為兩個梯形。</p>
+          <strong class="text-brand-900 font-bold">2. ✏️ 自訂底圖模式</strong>
+          <p>依序點擊網格頂點繪製幾何圖形，最後點擊第一個頂點即可完成閉合底圖。</p>
         </div>
       </div>
       <button onclick="closeHelpModal()" class="w-full mt-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs rounded-xl transition shadow-md shadow-brand-200 active:scale-95">
@@ -232,14 +236,14 @@
     const GRID_ROWS = 12;
 
     const PASTEL_COLORS = [
-      'rgba(134, 239, 172, 0.6)',  // 淡綠 (長方形 1)
-      'rgba(147, 197, 253, 0.6)',  // 淡藍 (長方形 2)
-      'rgba(216, 180, 254, 0.6)',  // 淡紫 (長方形 3)
-      'rgba(253, 224, 71, 0.6)',   // 淡黃
-      'rgba(253, 186, 116, 0.6)',  // 淡橙
-      'rgba(244, 114, 182, 0.6)',  // 淡粉
-      'rgba(167, 243, 208, 0.6)',
-      'rgba(192, 132, 252, 0.6)'
+      'rgba(192, 132, 252, 0.55)',
+      'rgba(147, 197, 253, 0.55)',
+      'rgba(134, 239, 172, 0.55)',
+      'rgba(253, 224, 71, 0.55)',
+      'rgba(253, 186, 116, 0.55)',
+      'rgba(244, 114, 182, 0.55)',
+      'rgba(167, 243, 208, 0.55)',
+      'rgba(216, 180, 254, 0.55)'
     ];
 
     let state = {
@@ -247,7 +251,7 @@
       gridType: 'square',
       soundEnabled: true,
       separation: 0,
-      basePolygons: [],
+      basePolygon: [],
       partitionLines: [],
       customDrawPoints: [],
       selectedStartPoint: null,
@@ -265,7 +269,7 @@
       resizeCanvas();
       window.addEventListener('resize', resizeCanvas);
       setupInteractionEvents();
-      loadPreset('three_rectangles');
+      loadPreset('parallelogram');
     };
 
     function resizeCanvas() {
@@ -410,30 +414,29 @@
       document.getElementById('separation-val-display').innerText = '0%';
 
       switch (type) {
-        case 'three_rectangles':
-          state.basePolygons = [
-            [{x: 2.5, y: 3}, {x: 5.5, y: 3}, {x: 5.5, y: 9}, {x: 2.5, y: 9}],
-            [{x: 6.5, y: 3}, {x: 9.5, y: 3}, {x: 9.5, y: 9}, {x: 6.5, y: 9}],
-            [{x: 10.5, y: 3}, {x: 13.5, y: 3}, {x: 13.5, y: 9}, {x: 10.5, y: 9}]
-          ];
-          break;
         case 'rectangle':
-          state.basePolygons = [[{x: 4, y: 3}, {x: 12, y: 3}, {x: 12, y: 9}, {x: 4, y: 9}]];
+          state.basePolygon = [{x: 4, y: 3}, {x: 12, y: 3}, {x: 12, y: 9}, {x: 4, y: 9}];
           break;
         case 'square':
-          state.basePolygons = [[{x: 5, y: 3}, {x: 11, y: 3}, {x: 11, y: 9}, {x: 5, y: 9}]];
+          state.basePolygon = [{x: 5, y: 3}, {x: 11, y: 3}, {x: 11, y: 9}, {x: 5, y: 9}];
           break;
         case 'parallelogram':
-          state.basePolygons = [[{x: 6, y: 3}, {x: 13, y: 3}, {x: 10, y: 9}, {x: 3, y: 9}]];
+          state.basePolygon = [{x: 6, y: 3}, {x: 13, y: 3}, {x: 10, y: 9}, {x: 3, y: 9}];
           break;
         case 'trapezoid':
-          state.basePolygons = [[{x: 6, y: 3}, {x: 10, y: 3}, {x: 13, y: 9}, {x: 3, y: 9}]];
+          state.basePolygon = [{x: 6, y: 3}, {x: 10, y: 3}, {x: 13, y: 9}, {x: 3, y: 9}];
           break;
         case 'rhombus':
-          state.basePolygons = [[{x: 8, y: 2}, {x: 12, y: 6}, {x: 8, y: 10}, {x: 4, y: 6}]];
+          state.basePolygon = [{x: 8, y: 2}, {x: 12, y: 6}, {x: 8, y: 10}, {x: 4, y: 6}];
           break;
         case 'triangle':
-          state.basePolygons = [[{x: 8, y: 3}, {x: 13, y: 9}, {x: 3, y: 9}]];
+          state.basePolygon = [{x: 8, y: 3}, {x: 13, y: 9}, {x: 3, y: 9}];
+          break;
+        case 'hexagon':
+          state.basePolygon = [{x: 6, y: 3}, {x: 10, y: 3}, {x: 12, y: 6}, {x: 10, y: 9}, {x: 6, y: 9}, {x: 4, y: 6}];
+          break;
+        case 'lshape':
+          state.basePolygon = [{x: 5, y: 3}, {x: 9, y: 3}, {x: 9, y: 6}, {x: 11, y: 6}, {x: 11, y: 9}, {x: 5, y: 9}];
           break;
       }
 
@@ -462,7 +465,7 @@
       if (!verts || verts.length < 3) return verts;
 
       let pts = [];
-      const EPS_DIST = 0.15;
+      const EPS_DIST = 0.2;
       for (let i = 0; i < verts.length; i++) {
         const pt = verts[i];
         if (pts.length === 0) {
@@ -594,31 +597,25 @@
     }
 
     function computeSubPolygons() {
-      const baseList = state.basePolygons && state.basePolygons.length > 0 
-        ? state.basePolygons 
-        : [];
-
-      if (baseList.length === 0) return [];
+      if (!state.basePolygon || state.basePolygon.length < 3) return [];
       if (state.partitionLines.length === 0) {
-        return baseList.map(poly => ({ vertices: poly, name: detectShapeName(poly) }));
+        return [{ vertices: state.basePolygon, name: detectShapeName(state.basePolygon) }];
       }
 
-      let currentPolygons = baseList.map(poly => ({ vertices: poly }));
+      let polygons = [state.basePolygon];
 
       state.partitionLines.forEach(line => {
         let nextPolygons = [];
-        currentPolygons.forEach(item => {
-          const splits = sliceSinglePolygonSegment(item.vertices, line.p1, line.p2);
-          splits.forEach(v => {
-            nextPolygons.push({ vertices: v });
-          });
+        polygons.forEach(poly => {
+          const split = sliceSinglePolygon(poly, line.p1, line.p2);
+          nextPolygons.push(...split);
         });
-        currentPolygons = nextPolygons;
+        polygons = nextPolygons;
       });
 
-      return currentPolygons.map(item => ({
-        vertices: item.vertices,
-        name: detectShapeName(item.vertices)
+      return polygons.map(verts => ({
+        vertices: verts,
+        name: detectShapeName(verts)
       }));
     }
 
@@ -636,8 +633,8 @@
       return { x: ix, y: iy };
     }
 
-    /* 核心修復：劃線段區域切割演算法 (Segment-Bounded Cut) */
-    function sliceSinglePolygonSegment(verts, lineP1, lineP2) {
+    /* 核心修正：非自動延伸的有限線段切割 (Finite Segment Cutting) */
+    function sliceSinglePolygon(verts, lineP1, lineP2) {
       const A = lineP2.y - lineP1.y;
       const B = lineP1.x - lineP2.x;
       const C = lineP2.x * lineP1.y - lineP1.x * lineP2.y;
@@ -646,7 +643,7 @@
       if (lenSq < 1e-9) return [verts];
 
       const dist = (p) => A * p.x + B * p.y + C;
-      const EPS = 1e-4;
+      const EPS = 1e-5;
 
       const dists = verts.map(p => dist(p));
 
@@ -656,16 +653,39 @@
         if (d < -EPS) hasNeg = true;
       }
 
-      // 若所有頂點皆在線的同側，表示該圖形未被劃穿，保持原樣
       if (!hasPos || !hasNeg) return [verts];
 
-      const ring = [];
-      const n = verts.length;
-      const uVals = [];
-
+      // 計算劃線段參數 t (lineP1 時 t=0, lineP2 時 t=1)
       const dx = lineP2.x - lineP1.x;
       const dy = lineP2.y - lineP1.y;
+      const getT = (p) => ((p.x - lineP1.x) * dx + (p.y - lineP1.y) * dy) / lenSq;
 
+      let tMin = Infinity, tMax = -Infinity;
+      const n = verts.length;
+
+      for (let i = 0; i < n; i++) {
+        const curr = verts[i];
+        const next = verts[(i + 1) % n];
+        const dCurr = dists[i];
+        const dNext = dists[(i + 1) % n];
+
+        if ((dCurr > EPS && dNext < -EPS) || (dCurr < -EPS && dNext > EPS)) {
+          const tLine = dCurr / (dCurr - dNext);
+          const ix = curr.x + tLine * (next.x - curr.x);
+          const iy = curr.y + tLine * (next.y - curr.y);
+          const tSeg = getT({ x: ix, y: iy });
+          if (tSeg < tMin) tMin = tSeg;
+          if (tSeg > tMax) tMax = tSeg;
+        }
+      }
+
+      // 若劃線段 [0, 1] 未觸及此圖形的切割交點區間 [tMin, tMax]，則不對該圖形進行切割
+      const TOL = 0.08; // 容許端點磁吸邊界誤差
+      if (tMin > 1 + TOL || tMax < 0 - TOL) {
+        return [verts];
+      }
+
+      const ring = [];
       for (let i = 0; i < n; i++) {
         const curr = verts[i];
         const next = verts[(i + 1) % n];
@@ -678,24 +698,9 @@
           const t = dCurr / (dCurr - dNext);
           let ix = curr.x + t * (next.x - curr.x);
           let iy = curr.y + t * (next.y - curr.y);
-          
+
           const snapped = snapIntersection(ix, iy, verts);
           ring.push(snapped);
-
-          // 計算交點在劃線段 [p1, p2] 上的參數 u (0~1 之間代表在劃線段範圍內)
-          const u = ((snapped.x - lineP1.x) * dx + (snapped.y - lineP1.y) * dy) / lenSq;
-          uVals.push(u);
-        }
-      }
-
-      // 檢查劃線段 [p1, p2] 是否真的穿越了該圖形的交點區域
-      if (uVals.length >= 2) {
-        const uMin = Math.min(...uVals);
-        const uMax = Math.max(...uVals);
-        const TOL = 0.12; // 邊界磁吸容許值
-        if (Math.max(0, uMin) > Math.min(1, uMax) + TOL) {
-          // 劃線段並未到達此圖形，不切割此圖形
-          return [verts];
         }
       }
 
@@ -710,8 +715,8 @@
       const cleanRight = cleanVertices(right);
 
       const res = [];
-      if (cleanLeft.length >= 3 && calcPolygonArea(cleanLeft) > 0.08) res.push(cleanLeft);
-      if (cleanRight.length >= 3 && calcPolygonArea(cleanRight) > 0.08) res.push(cleanRight);
+      if (cleanLeft.length >= 3 && calcPolygonArea(cleanLeft) > 0.1) res.push(cleanLeft);
+      if (cleanRight.length >= 3 && calcPolygonArea(cleanRight) > 0.1) res.push(cleanRight);
 
       return res.length > 0 ? res : [verts];
     }
@@ -761,7 +766,7 @@
         ctx.lineWidth = 2.5;
         ctx.stroke();
 
-        // 標籤動態大小
+        // 標籤動態大小與邊距避讓
         const centPx = gridToPixel(pCentroid.x + shiftX, pCentroid.y + shiftY);
         const polyArea = calcPolygonArea(poly.vertices);
         const fontPx = polyArea < 1.5 ? 10 : 12;
@@ -821,7 +826,7 @@
         ctx.restore();
       }
 
-      // 3. 顯示劃出的切割線
+      // 3. 切割線
       if (state.partitionLines.length > 0 && state.separation === 0) {
         ctx.save();
         ctx.strokeStyle = '#8e63b8';
@@ -997,7 +1002,7 @@
         if (state.customDrawPoints.length >= 3) {
           const firstPt = state.customDrawPoints[0];
           if (Math.hypot(firstPt.x - snap.x, firstPt.y - snap.y) < 0.3) {
-            state.basePolygons = [[...state.customDrawPoints]];
+            state.basePolygon = [...state.customDrawPoints];
             state.customDrawPoints = [];
             setMode('cut');
             playSound('pop');
@@ -1022,7 +1027,7 @@
       state.mode = mode;
       state.selectedStartPoint = null;
       if (mode === 'draw') {
-        state.basePolygons = [];
+        state.basePolygon = [];
         state.partitionLines = [];
         state.customDrawPoints = [];
       }
@@ -1039,7 +1044,7 @@
       if (state.mode === 'cut') {
         cutBtn.className = 'p-2.5 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 bg-brand-50 border-brand-600 text-brand-800 font-bold shadow-xs active:scale-95';
         drawBtn.className = 'p-2.5 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 border-slate-200 hover:border-brand-300 text-slate-700 bg-white font-bold active:scale-95';
-        statusText.innerText = '提示：請在網格上點擊或觸控兩點劃出分割線 (劃線僅會分割該線段穿越的圖形)';
+        statusText.innerText = '提示：請在網格上點擊或觸控兩點劃出分割線 (支援磁吸頂點與中點)';
       } else {
         drawBtn.className = 'p-2.5 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 bg-brand-50 border-brand-600 text-brand-800 font-bold shadow-xs active:scale-95';
         cutBtn.className = 'p-2.5 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 border-slate-200 hover:border-brand-300 text-slate-700 bg-white font-bold active:scale-95';
@@ -1055,7 +1060,7 @@
     }
 
     function resetCanvas() {
-      loadPreset('three_rectangles');
+      loadPreset('parallelogram');
     }
 
     function updateSeparation(val) {
@@ -1088,7 +1093,8 @@
       }
 
       if (state.partitionLines.length === 0) {
-        container.innerHTML = `當前圖形總數為：<strong class="text-brand-800 font-bold">${subPolygons.length} 個圖形</strong>。請在目標圖形上劃線分割！`;
+        const baseName = subPolygons[0] ? subPolygons[0].name : '多邊形';
+        container.innerHTML = `完整底圖為：<strong class="text-brand-800 font-bold">${baseName}</strong>。請在圖上劃線分割！`;
         return;
       }
 
